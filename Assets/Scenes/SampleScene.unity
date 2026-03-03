@@ -556,6 +556,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HandleStops
   stopPrefab: {fileID: 3247595711046762265, guid: 6c001ef62de3ec44287dc6949f918d85, type: 3}
+  linePrefab: {fileID: 3028552708550014569, guid: 0c3d33dee12172f469339ff60bc365e3, type: 3}
   spaceMultiplier: 1500
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
