@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using Unity.VisualScripting;
 
 public class Edge
 {
@@ -16,7 +18,7 @@ public class Edge
     }
     public Stop connectedNode { get; }
     public double trip_id { get; }
-    private List<(DateTime, DateTime)> timeList = new List<(DateTime arrival_time, DateTime departure_time)>();
+    private List<(DateTime arrival_time, DateTime departure_time)> timeList = new List<(DateTime arrival_time, DateTime departure_time)>();
 
 
     public void AddStopTime(DateTime arrival_time, DateTime departure_time)
@@ -24,14 +26,24 @@ public class Edge
         // check if that time exist
         timeList.Add((arrival_time, departure_time));
     }
-    public int GetWeight()
+
+    public int GetWeight(DateTime currentTime)
     {
-        return 1;
+        // hitta den närmsta avgången 
+        (DateTime arrival_time, DateTime departure_time) closest = FindClosestArrival(currentTime);
+
+        // räkna ut tiden mellan den närmsta avgången och tiden nu
+        int minutes = (int)(closest.departure_time - currentTime).TotalMinutes;
+
+        // räkna ut tiden mellan avgången och ankomsten 
+        return minutes += (int)(closest.arrival_time - closest.departure_time).TotalMinutes;
     }
 
-    public int GetHeuristic()
+    public (DateTime arrival_time, DateTime departure_time) FindClosestArrival(DateTime target)
     {
-        return 1;
+        return timeList
+        .Where(t => t.departure_time >= target)
+        .OrderBy(t => t.departure_time)
+        .First();
     }
-
 }

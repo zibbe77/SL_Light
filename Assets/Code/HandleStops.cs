@@ -91,7 +91,7 @@ public class HandleStops : MonoBehaviour
                 for (int i = 1; i < trip.stops.Count; i++)
                 {
                     DateTime arrival_time = ParseGtfsTime(trip.stops[i].arrival_time);
-                    DateTime departure_time = ParseGtfsTime(trip.stops[i].departure_time);
+                    DateTime departure_time = ParseGtfsTime(trip.stops[i - 1].departure_time);
 
                     double trip_id;
                     bool success = double.TryParse(trip.stops[i].trip_id, out trip_id);

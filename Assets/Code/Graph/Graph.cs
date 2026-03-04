@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Unity.Mathematics;
 using UnityEngine;
 
 public class Graph
@@ -61,7 +62,7 @@ public class Graph
         return null;
     }
 
-    public List<Stop> GetPath(Stop from, Stop to, DateTime currentTime)
+    public List<Stop> GetPath(Stop from, Stop to, DateTime startTime)
     {
         if (!adjacencyList.ContainsKey(from) || !adjacencyList.ContainsKey(to)) { return null; }
 
@@ -70,7 +71,7 @@ public class Graph
         int id = 0;
 
         var nodeData = new Dictionary<Stop, (int pathCost, Stop parent)>();
-        workingQueue.Add((0, ++id), from);
+        workingQueue.Add((0 + GetHeuristic(from, to), ++id), from);
 
         Stop currentStop = null;
         while (workingQueue.Count < 0)
@@ -102,16 +103,18 @@ public class Graph
             foreach (Edge edge in edges)
             {
                 // checks for better paths
+                int pathCostCalc = nodeData[currentStop].pathCost + edge.GetWeight(startTime.AddMinutes(nodeData[currentStop].pathCost));
+
                 if (nodeData.ContainsKey(edge.connectedNode))
                 {
-                    if (nodeData[edge.connectedNode].pathCost > nodeData[currentStop].pathCost + edge.GetWeight() && nodeData[edge.connectedNode].parent != null)
+                    if (nodeData[edge.connectedNode].pathCost > pathCostCalc && nodeData[edge.connectedNode].parent != null)
                     {
-                        nodeData[edge.connectedNode] = new(nodeData[currentStop].pathCost + edge.GetWeight(), currentStop);
+                        nodeData[edge.connectedNode] = new(pathCostCalc, currentStop);
                     }
                 }
                 else
                 {
-                    workingQueue.Add((edge.GetWeight() + nodeData[currentStop].pathCost + edge.GetHeuristic(), ++id), edge.connectedNode);
+                    workingQueue.Add((pathCostCalc + nodeData[currentStop].pathCost + GetHeuristic(currentStop, to), ++id), edge.connectedNode);
                 }
             }
         }
@@ -155,6 +158,26 @@ public class Graph
     #endregion
     #region Helpers
 
+    // Shit Heuristic
+    private int GetHeuristic(Stop current, Stop goal)
+    {
+        const double Earth_Radius_Km = 6371;
+        const double SL_MaxSpeed = 80.0;
+
+
+        double dLat = (goal.lat - current.lat) * Math.PI / 180;
+        double dLon = (goal.lon - current.lon) * Math.PI / 180;
+
+        double a = Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
+                   Math.Cos(current.lat * Math.PI / 180) * Math.Cos(goal.lat * Math.PI / 180) *
+                   Math.Sin(dLon / 2) * Math.Sin(dLon / 2);
+
+        double c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
+
+        double km = Earth_Radius_Km * c; // distans i km
+
+        return (int)math.ceil((km / SL_MaxSpeed) * 60);
+    }
     private void CheckAdjListContains(Stop node1)
     {
         if (!adjacencyList.ContainsKey(node1))
