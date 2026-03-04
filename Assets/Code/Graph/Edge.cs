@@ -36,14 +36,21 @@ public class Edge
         int minutes = (int)(closest.departure_time - currentTime).TotalMinutes;
 
         // räkna ut tiden mellan avgången och ankomsten 
+
+        if (0 > (int)(closest.arrival_time - closest.departure_time).TotalMinutes)
+        {
+            throw new InvalidOperationException("negativ vikt");
+        }
         return minutes += (int)(closest.arrival_time - closest.departure_time).TotalMinutes;
     }
 
     public (DateTime arrival_time, DateTime departure_time) FindClosestArrival(DateTime target)
     {
-        return timeList
-        .Where(t => t.departure_time >= target)
-        .OrderBy(t => t.departure_time)
-        .First();
+        var future = timeList.Where(t => t.departure_time >= target);
+
+        if (!future.Any())
+            return timeList.OrderBy(t => t.departure_time).First();
+
+        return future.OrderBy(t => t.departure_time).First();
     }
 }

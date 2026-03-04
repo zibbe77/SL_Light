@@ -24,6 +24,9 @@ public class HandleStops : MonoBehaviour
 
         CreatStops();
         PopGraph(handleTempData);
+
+        SetCurrentTime("6:00:05");
+        // Submit();
     }
 
     void CreatStops()
@@ -47,7 +50,7 @@ public class HandleStops : MonoBehaviour
                 graph.Add(stop);
 
                 GameObject stopObj = Instantiate(stopPrefab, new Vector3((float)stop.lon * spaceMultiplier, 0, (float)stop.lat * spaceMultiplier), Quaternion.identity);
-                stopObj.name = stop.name;
+                stopObj.name = stop.name + " |" + stop.id;
                 TMP_Text TMP = stopObj.transform.GetChild(0).gameObject.GetComponentInChildren<TMP_Text>();
                 TMP.text = stop.name;
 
@@ -121,6 +124,46 @@ public class HandleStops : MonoBehaviour
 
         }
     }
+    int from = 740021696;
+    int to = 740011606;
+    DateTime currentTime;
+
+    public void SetFrom(string s)
+    {
+        bool success = int.TryParse(s, out from);
+        if (success != true)
+        {
+            Debug.LogWarning("not a number");
+        }
+    }
+    public void SetTo(string s)
+    {
+        bool success = int.TryParse(s, out to);
+        if (success != true)
+        {
+            Debug.LogWarning("not a number");
+        }
+    }
+    public void SetCurrentTime(string s)
+    {
+        currentTime = ParseGtfsTime(s);
+        Debug.Log(currentTime);
+    }
+    public void Submit()
+    {
+        List<Stop> stops = graph.GetPath(from, to, currentTime);
+
+        Debug.Log("----------------");
+        Debug.Log("Count" + stops.Count);
+        Debug.Log("----------------");
+        foreach (Stop stop in stops)
+        {
+            Debug.Log(stop.name);
+        }
+        Debug.Log("----------------");
+    }
+
+
     private DateTime ParseGtfsTime(string timeStr)
     {
         var parts = timeStr.Split(':');
@@ -130,13 +173,6 @@ public class HandleStops : MonoBehaviour
 
         // Lägg till extra timmar på referensdatumet om hours >= 24
 
-        DateTime dateTime = new DateTime();
-
-        dateTime.Date
-        .AddHours(hours)
-        .AddMinutes(minutes)
-        .AddSeconds(seconds);
-
-        return dateTime;
+        return new DateTime().AddHours(hours).AddMinutes(minutes).AddSeconds(seconds);
     }
 }

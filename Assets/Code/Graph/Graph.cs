@@ -61,64 +61,94 @@ public class Graph
 
         return null;
     }
-
+    public List<Stop> GetPath(int from, int to, DateTime startTime)
+    {
+        return GetPath(GetStopFromId(from), GetStopFromId(to), startTime);
+    }
     public List<Stop> GetPath(Stop from, Stop to, DateTime startTime)
     {
         if (!adjacencyList.ContainsKey(from) || !adjacencyList.ContainsKey(to)) { return null; }
+        Debug.Log("From: " + from.name + " To: " + to.name + "Time: " + startTime);
+
 
         // PriorityQueue fins tydligen inte i unity. Skulle använda en PriorityQueue om jag kunde. Id för att fixa ties.
-        var workingQueue = new SortedList<(int cost, int id), Stop>();
+        var workingQueue = new SortedList<(int cost, int id, int pathCost), (Stop stop, Stop parent)>();
         int id = 0;
 
         var nodeData = new Dictionary<Stop, (int pathCost, Stop parent)>();
-        workingQueue.Add((0 + GetHeuristic(from, to), ++id), from);
+        workingQueue.Add((0 + GetHeuristic(from, to), id++, 0), (from, null));
 
         Stop currentStop = null;
-        while (workingQueue.Count < 0)
-        {
-            Stop parent = currentStop;
-            currentStop = workingQueue.Values[0];
 
-            nodeData.Add(currentStop, (workingQueue.Keys[0].cost, parent));
+        while (workingQueue.Count > 0)
+        {
+            var current = workingQueue.Values[0];
+            var currentKey = workingQueue.Keys[0];
             workingQueue.RemoveAt(0);
+
+            currentStop = current.stop;
+            Stop parent = current.parent;
+
+            if (nodeData.ContainsKey(currentStop)) continue;
+            nodeData.Add(currentStop, (currentKey.pathCost, parent));
 
             if (currentStop.Equals(to))
             {
+                Debug.Log("<<<<<<<<<<<<<<<<<<");
+                Debug.Log("End list");
+                Debug.Log("<<<<<<<<<<<<<<<<<<");
                 var list = new List<Stop>();
-                list.Add(currentStop);
+                var visited = new HashSet<Stop>();
+
 
                 while (true)
                 {
                     currentStop = nodeData[currentStop].parent;
+
                     if (currentStop == null)
                     {
+                        list.Reverse();
                         return list;
                     }
 
+                    if (visited.Contains(currentStop))
+                    {
+                        string chain = "";
+                        foreach (var stop in list)
+                        {
+                            chain += stop.name + " -> ";
+                        }
+                        Debug.LogError($"Cykel! {currentStop.name} pekar tillbaka");
+                        Debug.LogError($"Parent chain: {chain}");
+                        return null;
+                    }
+
+                    Debug.Log(currentStop.name);
+
                     list.Add(currentStop);
+                    visited.Add(currentStop);
                 }
+
             }
+            //Debug.Log("currentStop: " + currentStop.name);
 
             List<Edge> edges = GetEdgesFrom(currentStop);
             foreach (Edge edge in edges)
             {
+                // Debug.Log(edge.trip_id);
                 // checks for better paths
+
                 int pathCostCalc = nodeData[currentStop].pathCost + edge.GetWeight(startTime.AddMinutes(nodeData[currentStop].pathCost));
 
-                if (nodeData.ContainsKey(edge.connectedNode))
+                if (!nodeData.ContainsKey(edge.connectedNode))
                 {
-                    if (nodeData[edge.connectedNode].pathCost > pathCostCalc && nodeData[edge.connectedNode].parent != null)
-                    {
-                        nodeData[edge.connectedNode] = new(pathCostCalc, currentStop);
-                    }
-                }
-                else
-                {
-                    workingQueue.Add((pathCostCalc + nodeData[currentStop].pathCost + GetHeuristic(currentStop, to), ++id), edge.connectedNode);
+                    Debug.Log($"Kö: {edge.connectedNode.name} parent={currentStop.name} cost={pathCostCalc}");
+                    workingQueue.Add((pathCostCalc + GetHeuristic(currentStop, to), id++, pathCostCalc), (edge.connectedNode, currentStop));
                 }
             }
         }
 
+        Debug.Log("return null");
         return null;
     }
 
@@ -162,7 +192,7 @@ public class Graph
     private int GetHeuristic(Stop current, Stop goal)
     {
         const double Earth_Radius_Km = 6371;
-        const double SL_MaxSpeed = 80.0;
+        const double SL_Speed = 60;
 
 
         double dLat = (goal.lat - current.lat) * Math.PI / 180;
@@ -176,7 +206,9 @@ public class Graph
 
         double km = Earth_Radius_Km * c; // distans i km
 
-        return (int)math.ceil((km / SL_MaxSpeed) * 60);
+
+        //Debug.Log("h: " + (int)math.ceil((km / SL_Speed) * 60));
+        return (int)math.ceil((km / SL_Speed) * 60);
     }
     private void CheckAdjListContains(Stop node1)
     {
