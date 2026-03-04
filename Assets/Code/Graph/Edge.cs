@@ -44,7 +44,7 @@ public class Edge
             throw new InvalidOperationException("negativ vikt");
         }
 
-        Debug.Log($"departure: {closest.departure_time} arrival: {closest.arrival_time} wait: {waitTime} travel: {travelTime}");
+        //Debug.Log($"departure: {closest.departure_time} arrival: {closest.arrival_time} wait: {waitTime} travel: {travelTime}");
 
         return waitTime + travelTime;
     }
@@ -54,7 +54,13 @@ public class Edge
         var future = timeList.Where(t => t.departure_time >= target);
 
         if (future.Any())
+        {
             return future.OrderBy(t => t.departure_time).First();
+        }
+
+        Debug.Log($"timeList för edge:");
+        foreach (var t in timeList)
+            Debug.Log($"  dep: {t.departure_time:HH:mm} arr: {t.arrival_time:HH:mm}");
 
         // Inga avgångar kvar idag – ta första imorgon med +24h
         var next = timeList.OrderBy(t => t.departure_time).First();

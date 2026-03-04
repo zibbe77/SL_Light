@@ -65,11 +65,11 @@ public class Graph
 
         return null;
     }
-    public List<Stop> GetPath(int from, int to, DateTime startTime)
+    public List<(Stop stop, int time)> GetPath(int from, int to, DateTime startTime)
     {
         return GetPath(GetStopFromId(from), GetStopFromId(to), startTime);
     }
-    public List<Stop> GetPath(Stop from, Stop to, DateTime startTime)
+    public List<(Stop stop, int time)> GetPath(Stop from, Stop to, DateTime startTime)
     {
         if (!adjacencyList.ContainsKey(from) || !adjacencyList.ContainsKey(to)) { return null; }
         // Debug.Log("From: " + from.name + " To: " + to.name + "Time: " + startTime);
@@ -98,10 +98,7 @@ public class Graph
 
             if (currentStop.Equals(to))
             {
-                Debug.Log("<<<<<<<<<<<<<<<<<<");
-                Debug.Log("End list");
-                Debug.Log("<<<<<<<<<<<<<<<<<<");
-                var list = new List<Stop>();
+                var list = new List<(Stop stop, int time)>();
                 var visited = new HashSet<Stop>();
 
 
@@ -120,16 +117,14 @@ public class Graph
                         string chain = "";
                         foreach (var stop in list)
                         {
-                            chain += stop.name + " -> ";
+                            chain += stop.stop.name + " -> ";
                         }
                         Debug.LogError($"Cykel! {currentStop.name} pekar tillbaka");
                         Debug.LogError($"Parent chain: {chain}");
                         return null;
                     }
 
-                    Debug.Log(currentStop.name);
-
-                    list.Add(currentStop);
+                    list.Add((currentStop, nodeData[currentStop].pathCost));
                     visited.Add(currentStop);
                 }
 

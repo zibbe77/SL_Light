@@ -25,7 +25,7 @@ public class HandleStops : MonoBehaviour
         CreatStops();
         PopGraph(handleTempData);
 
-        SetCurrentTime("6:00:05");
+        SetCurrentTime("11:00:05");
         // Submit();
     }
 
@@ -150,14 +150,12 @@ public class HandleStops : MonoBehaviour
     }
     public void Submit()
     {
-        List<Stop> stops = graph.GetPath(from, to, currentTime);
+        List<(Stop stop, int time)> stops = graph.GetPath(from, to, currentTime);
 
         Debug.Log("----------------");
-        Debug.Log("Count" + stops.Count);
-        Debug.Log("----------------");
-        foreach (Stop stop in stops)
+        foreach ((Stop stop, int time) s in stops)
         {
-            Debug.Log(stop.name);
+            Debug.Log($"{s.stop.name} --> {currentTime.AddMinutes(s.time):HH:mm} ");
         }
         Debug.Log("----------------");
     }
