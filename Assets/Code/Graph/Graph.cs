@@ -47,6 +47,10 @@ public class Graph
     {
         return adjacencyList[stop];
     }
+    public Edge GetEdgeBetween(string from, string to)
+    {
+        return GetEdgeBetween(GetStopFromId(from), GetStopFromId(to));
+    }
     public Edge GetEdgeBetween(Stop from, Stop to)
     {
         CheckAdjListContains(from, to);
@@ -68,7 +72,7 @@ public class Graph
     public List<Stop> GetPath(Stop from, Stop to, DateTime startTime)
     {
         if (!adjacencyList.ContainsKey(from) || !adjacencyList.ContainsKey(to)) { return null; }
-        Debug.Log("From: " + from.name + " To: " + to.name + "Time: " + startTime);
+        // Debug.Log("From: " + from.name + " To: " + to.name + "Time: " + startTime);
 
 
         // PriorityQueue fins tydligen inte i unity. Skulle använda en PriorityQueue om jag kunde. Id för att fixa ties.
@@ -142,7 +146,7 @@ public class Graph
 
                 if (!nodeData.ContainsKey(edge.connectedNode))
                 {
-                    Debug.Log($"Kö: {edge.connectedNode.name} parent={currentStop.name} cost={pathCostCalc}");
+                    // Debug.Log($"Kö: {edge.connectedNode.name} parent={currentStop.name} cost={pathCostCalc}");
                     workingQueue.Add((pathCostCalc + GetHeuristic(currentStop, to), id++, pathCostCalc), (edge.connectedNode, currentStop));
                 }
             }

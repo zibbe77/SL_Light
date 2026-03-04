@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 using Unity.VisualScripting;
 
 public class Edge
@@ -33,7 +34,8 @@ public class Edge
         (DateTime arrival_time, DateTime departure_time) closest = FindClosestArrival(currentTime);
 
         // räkna ut tiden mellan den närmsta avgången och tiden nu
-        int minutes = (int)(closest.departure_time - currentTime).TotalMinutes;
+        int waitTime = (int)(closest.departure_time - currentTime).TotalMinutes;
+        int travelTime = (int)(closest.arrival_time - closest.departure_time).TotalMinutes;
 
         // räkna ut tiden mellan avgången och ankomsten 
 
@@ -41,16 +43,21 @@ public class Edge
         {
             throw new InvalidOperationException("negativ vikt");
         }
-        return minutes += (int)(closest.arrival_time - closest.departure_time).TotalMinutes;
+
+        Debug.Log($"departure: {closest.departure_time} arrival: {closest.arrival_time} wait: {waitTime} travel: {travelTime}");
+
+        return waitTime + travelTime;
     }
 
     public (DateTime arrival_time, DateTime departure_time) FindClosestArrival(DateTime target)
     {
         var future = timeList.Where(t => t.departure_time >= target);
 
-        if (!future.Any())
-            return timeList.OrderBy(t => t.departure_time).First();
+        if (future.Any())
+            return future.OrderBy(t => t.departure_time).First();
 
-        return future.OrderBy(t => t.departure_time).First();
+        // Inga avgångar kvar idag – ta första imorgon med +24h
+        var next = timeList.OrderBy(t => t.departure_time).First();
+        return (next.arrival_time.AddDays(1), next.departure_time.AddDays(1));
     }
 }

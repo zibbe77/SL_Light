@@ -65,10 +65,7 @@ public class HandleStops : MonoBehaviour
         {
             Dictionary<string, TempTrip>.ValueCollection valueCollTrip = route.tempTrips.Values;
 
-            // Creat Line obj
-            GameObject lineObj = Instantiate(linePrefab, new Vector3(0, 0, 0), Quaternion.identity);
-            lineObj.name = route.route_id + " | " + route.route_short_name + " | " + route.route_long_name;
-            LineRenderer lr = lineObj.GetComponent<LineRenderer>();
+
 
             // Fineds the longest trip on the line. Most likly to have the entire line. Only for visual
             int longesTrip = 0;
@@ -87,7 +84,7 @@ public class HandleStops : MonoBehaviour
             }
 
             // Puts in graph and draws the points
-            int currentTripIndex = 0;
+            // int currentTripIndex = 0;
 
             foreach (TempTrip trip in valueCollTrip)
             {
@@ -100,6 +97,21 @@ public class HandleStops : MonoBehaviour
                     bool success = double.TryParse(trip.stops[i].trip_id, out trip_id);
                     if (success)
                     {
+                        // Creat Line obj
+
+                        if (graph.GetEdgeBetween(trip.stops[i - 1].stop_id, trip.stops[i].stop_id) != null)
+                        {
+                            GameObject lineObj = Instantiate(linePrefab, new Vector3(0, 0, 0), Quaternion.identity);
+                            LineRenderer lr = lineObj.GetComponent<LineRenderer>();
+                            lr.positionCount = 2;
+
+                            Stop stop = graph.GetStopFromId(trip.stops[i - 1].stop_id);
+                            lr.SetPosition(0, new Vector3((float)stop.lon * spaceMultiplier, 0, (float)stop.lat * spaceMultiplier));
+
+                            Stop stop2 = graph.GetStopFromId(trip.stops[i].stop_id);
+                            lr.SetPosition(1, new Vector3((float)stop2.lon * spaceMultiplier, 0, (float)stop2.lat * spaceMultiplier));
+                        }
+
                         graph.Connect(trip.stops[i - 1].stop_id, trip.stops[i].stop_id, trip_id, arrival_time, departure_time);
                     }
                     else
@@ -107,19 +119,6 @@ public class HandleStops : MonoBehaviour
                         print("Fail -> " + trip.stops[i].trip_id);
                     }
                 }
-                for (int i = 0; i < trip.stops.Count; i++)
-                {
-                    if (currentTripIndex == longesTripIndex)
-                    {
-                        // Debug.Log(route.route_id + " | " + route.route_short_name + " | " + route.route_long_name + "-->" + longesTripIndex);
-
-                        lr.positionCount = lr.positionCount + 1;
-                        Stop stop = graph.GetStopFromId(trip.stops[i].stop_id);
-                        lr.SetPosition(i, new Vector3((float)stop.lon * spaceMultiplier, 0, (float)stop.lat * spaceMultiplier));
-                    }
-                }
-
-                currentTripIndex++;
             }
 
         }
