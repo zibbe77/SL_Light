@@ -65,27 +65,6 @@ public class HandleStops : MonoBehaviour
         {
             Dictionary<string, TempTrip>.ValueCollection valueCollTrip = route.tempTrips.Values;
 
-
-
-            // Fineds the longest trip on the line. Most likly to have the entire line. Only for visual
-            int longesTrip = 0;
-            int longesTripIndex = 0;
-            int index = 0;
-
-            foreach (TempTrip trip in valueCollTrip)
-            {
-                if (trip.stops.Count > longesTrip)
-                {
-                    longesTrip = trip.stops.Count;
-                    longesTripIndex = index;
-                }
-
-                index++;
-            }
-
-            // Puts in graph and draws the points
-            // int currentTripIndex = 0;
-
             foreach (TempTrip trip in valueCollTrip)
             {
                 for (int i = 1; i < trip.stops.Count; i++)
@@ -97,8 +76,6 @@ public class HandleStops : MonoBehaviour
                     bool success = double.TryParse(trip.stops[i].trip_id, out trip_id);
                     if (success)
                     {
-                        // Creat Line obj
-
                         if (graph.GetEdgeBetween(trip.stops[i - 1].stop_id, trip.stops[i].stop_id) != null)
                         {
                             GameObject lineObj = Instantiate(linePrefab, new Vector3(0, 0, 0), Quaternion.identity);
@@ -120,7 +97,6 @@ public class HandleStops : MonoBehaviour
                     }
                 }
             }
-
         }
     }
     int from = 740021696;
