@@ -6,19 +6,16 @@ using Unity.VisualScripting;
 
 public class Edge
 {
-    public Edge(double trip_id, Stop connectedNode)
+    public Edge(double trip_id, DateTime arrival_time, DateTime departure_time, Stop connectedNode, double route_id)
     {
-        this.connectedNode = connectedNode;
-        this.trip_id = trip_id;
-    }
-    public Edge(double trip_id, DateTime arrival_time, DateTime departure_time, Stop connectedNode)
-    {
+        this.route_id = route_id;
         this.connectedNode = connectedNode;
         this.trip_id = trip_id;
         timeList.Add((arrival_time, departure_time));
     }
     public Stop connectedNode { get; }
     public double trip_id { get; }
+    public double route_id { get; }
     private List<(DateTime arrival_time, DateTime departure_time)> timeList = new List<(DateTime arrival_time, DateTime departure_time)>();
 
 

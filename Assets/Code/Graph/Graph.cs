@@ -15,22 +15,22 @@ public class Graph
             adjacencyList.Add(node, new List<Edge>());
         }
     }
-    public void Connect(string from, string to, double trip_id, DateTime arrival_time, DateTime departure_time)
+    public void Connect(string from, string to, double trip_id, DateTime arrival_time, DateTime departure_time, double route_id)
     {
-        Connect(GetStopFromId(from), GetStopFromId(to), trip_id, arrival_time, departure_time);
+        Connect(GetStopFromId(from), GetStopFromId(to), trip_id, arrival_time, departure_time, route_id);
     }
 
-    public void Connect(Stop from, Stop to, double trip_id, DateTime arrival_time, DateTime departure_time)
+    public void Connect(Stop from, Stop to, double trip_id, DateTime arrival_time, DateTime departure_time, double route_id)
     {
         CheckAdjListContains(from, to);
         Edge edge = GetEdgeBetween(from, to);
-        if (edge != null)
+        if (edge != null && route_id == edge.route_id)
         {
             edge.AddStopTime(arrival_time, departure_time);
         }
         else
         {
-            adjacencyList[from].Add(new Edge(trip_id, arrival_time, departure_time, to));
+            adjacencyList[from].Add(new Edge(trip_id, arrival_time, departure_time, to, route_id));
         }
     }
     public List<Stop> GetNodes()

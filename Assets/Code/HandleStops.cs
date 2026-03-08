@@ -89,7 +89,7 @@ public class HandleStops : MonoBehaviour
                             lr.SetPosition(1, new Vector3((float)stop2.lon * spaceMultiplier, 0, (float)stop2.lat * spaceMultiplier));
                         }
 
-                        graph.Connect(trip.stops[i - 1].stop_id, trip.stops[i].stop_id, trip_id, arrival_time, departure_time);
+                        graph.Connect(trip.stops[i - 1].stop_id, trip.stops[i].stop_id, trip_id, arrival_time, departure_time, double.Parse(route.route_id));
                     }
                     else
                     {
