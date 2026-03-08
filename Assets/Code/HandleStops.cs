@@ -153,6 +153,8 @@ public class HandleStops : MonoBehaviour
         List<(Stop stop, int time)> stops = graph.GetPath(from, to, currentTime);
 
         Debug.Log("----------------");
+        Debug.Log("Amount" + stops.Count);
+        Debug.Log("----------------");
         foreach ((Stop stop, int time) s in stops)
         {
             Debug.Log($"{s.stop.name} --> {currentTime.AddMinutes(s.time):HH:mm} ");

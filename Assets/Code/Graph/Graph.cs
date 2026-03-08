@@ -101,6 +101,8 @@ public class Graph
                 var list = new List<(Stop stop, int time)>();
                 var visited = new HashSet<Stop>();
 
+                list.Add((currentStop, nodeData[currentStop].pathCost));
+                visited.Add(currentStop);
 
                 while (true)
                 {
@@ -143,6 +145,10 @@ public class Graph
                 {
                     // Debug.Log($"Kö: {edge.connectedNode.name} parent={currentStop.name} cost={pathCostCalc}");
                     workingQueue.Add((pathCostCalc + GetHeuristic(currentStop, to), id++, pathCostCalc), (edge.connectedNode, currentStop));
+                }
+                else if (nodeData[edge.connectedNode].pathCost > pathCostCalc)
+                {
+                    nodeData[edge.connectedNode] = (pathCostCalc, currentStop);
                 }
             }
         }
