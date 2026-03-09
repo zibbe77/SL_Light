@@ -55,9 +55,9 @@ public class Edge
             return future.OrderBy(t => t.departure_time).First();
         }
 
-        Debug.Log($"timeList för edge:");
-        foreach (var t in timeList)
-            Debug.Log($"  dep: {t.departure_time:HH:mm} arr: {t.arrival_time:HH:mm}");
+        //Debug.Log($"timeList för edge:");
+        //foreach (var t in timeList)
+        //    Debug.Log($"  dep: {t.departure_time:HH:mm} arr: {t.arrival_time:HH:mm}");
 
         // Inga avgångar kvar idag – ta första imorgon med +24h
         var next = timeList.OrderBy(t => t.departure_time).First();

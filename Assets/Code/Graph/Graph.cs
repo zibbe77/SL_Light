@@ -23,15 +23,22 @@ public class Graph
     public void Connect(Stop from, Stop to, double trip_id, DateTime arrival_time, DateTime departure_time, double route_id)
     {
         CheckAdjListContains(from, to);
-        Edge edge = GetEdgeBetween(from, to);
-        if (edge != null && route_id == edge.route_id)
+        List<Edge> edges = GetEdgesBetween(from, to);
+
+        if (edges != null)
         {
-            edge.AddStopTime(arrival_time, departure_time);
+            foreach (Edge edge in edges)
+            {
+                if (route_id == edge.route_id)
+                {
+                    edge.AddStopTime(arrival_time, departure_time);
+                    return;
+                }
+            }
         }
-        else
-        {
-            adjacencyList[from].Add(new Edge(trip_id, arrival_time, departure_time, to, route_id));
-        }
+
+        adjacencyList[from].Add(new Edge(trip_id, arrival_time, departure_time, to, route_id));
+
     }
     public List<Stop> GetNodes()
     {
@@ -65,6 +72,26 @@ public class Graph
 
         return null;
     }
+    public List<Edge> GetEdgesBetween(Stop from, Stop to)
+    {
+        CheckAdjListContains(from, to);
+        List<Edge> edges = new List<Edge>();
+
+        foreach (Edge edge in adjacencyList[from])
+        {
+            if (edge.connectedNode.Equals(to))
+            {
+                edges.Add(edge);
+            }
+        }
+
+        if (edges.Count == 0)
+        {
+            return null;
+        }
+        return edges;
+    }
+
     public List<(Stop stop, int time)> GetPath(int from, int to, DateTime startTime)
     {
         return GetPath(GetStopFromId(from), GetStopFromId(to), startTime);
